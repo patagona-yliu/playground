@@ -1,0 +1,15 @@
+metricbeat.modules:
+- module: http
+  metricsets: 
+    - json
+  period: 300s
+  enabled: true
+  # https://github.com/elastic/beats/issues/6276#issuecomment-363518902
+  hosts: ["https://dev.patagona.de/controlpanel/api/tasks/stats?sinceSeconds=300"]
+  method: "GET"
+  username: "alerts@patagona.de"
+  password: "oa5Zeinu"
+  namespace: "task_stats"
+
+output.logstash:
+  hosts: ["logstash:5044"]
