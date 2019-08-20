@@ -1,15 +1,12 @@
 metricbeat.modules:
-- module: http
+- module: rabbitmq
   metricsets: 
-    - json
-  period: 300s
-  enabled: true
-  # https://github.com/elastic/beats/issues/6276#issuecomment-363518902
-  hosts: ["https://dev.patagona.de/controlpanel/api/tasks/stats?sinceSeconds=300"]
-  method: "GET"
-  username: "alerts@patagona.de"
-  password: "oa5Zeinu"
-  namespace: "task_stats"
+    - node
+  period: 20s
+  enabled: true  
+  hosts: ["192.168.178.224:15672"]
+  username: guest
+  password: guest
 
-output.logstash:
-  hosts: ["logstash:5044"]
+output.elasticsearch:
+  hosts: ["elasticsearch-1:9200"]
