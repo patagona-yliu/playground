@@ -3,8 +3,6 @@ services:
   elasticsearch-1:
     image: 'docker.elastic.co/elasticsearch/elasticsearch:6.4.2'
     container_name: elasticsearch-1
-    # networks:
-    #   - docker-elk
     ports:
       - '9200:9200'
       - '9300:9300'
@@ -13,8 +11,6 @@ services:
     container_name: kibana
     environment:
       - 'ELASTICSEARCH_URL=http://elasticsearch-1:9200'
-    # networks:
-    #   - docker-elk
     depends_on:
       - elasticsearch-1
     ports:
@@ -22,32 +18,34 @@ services:
   metricbeat:
     image: 'docker.elastic.co/beats/metricbeat:6.4.2'
     container_name: metricbeat
-    # networks:
-    #   - docker-elk
-    depends_on:
-      # - elasticsearch
-      - logstash
+    # depends_on:
+      # - elasticsearch-1
+      # - logstash
     environment:
       - ELASTICSEARCH_USERNAME=elastic
       - ELASTICSEARCH_PASSWORD=changeme
     volumes:
       - ./metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro
-      # - /var/run/docker.sock:/var/run/docker.sock:ro
-      # - /sys/fs/cgroup:/hostfs/sys/fs/cgroup:ro
-      # - /proc:/hostfs/proc:ro
-      # - /:/hostfs:ro
     command: metricbeat -e -strict.perms=false
-  logstash:
-    image: docker.elastic.co/logstash/logstash:6.4.2
-    container_name: logstash 
-    command: logstash --path.settings "/etc/logstash/config"
-    # networks:
-    #   - docker-elk
-    # depends_on:
-    #   - elasticsearch
-    volumes:
-      - ./config:/etc/logstash/config
-      - ./pipeline:/etc/logstash/conf.d
-# networks:
-#   docker-elk:
-#     driver: bridge
+#  logstash:
+#    image: docker.elastic.co/logstash/logstash:6.4.2
+#    container_name: logstash
+#    command: logstash --path.settings "/etc/logstash/config"
+#    # networks:
+#    #   - docker-elk
+#    # depends_on:
+#    #   - elasticsearch
+#    volumes:
+#      - ./config:/etc/logstash/config
+#      - ./pipeline:/etc/logstash/conf.d
+#  filebeat:
+#    image: docker.elastic.co/beats/filebeat:6.4.2
+#    depends_on:
+#      - kibana
+#    container_name: filebeat
+#    # user: root
+#    volumes:
+#      - ./filebeat.docker.copy.yml:/usr/share/filebeat/filebeat.yml
+#      # - /var/lib/docker/containers:/usr/share/filebeat/logs/docker-logs:ro
+#      # - ./filebeat/nginx.yml:/usr/share/filebeat/modules.d/nginx.yml
+#      - /home/aanjaria/Downloads/patagona-dev/var/log/nginx:/usr/share/filebeat/logs/plentymarket-middleware-logs:ro

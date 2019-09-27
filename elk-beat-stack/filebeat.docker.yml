@@ -1,0 +1,119 @@
+######################## Filebeat Configuration ############################
+
+# This file is a full configuration example documenting all non-deprecated
+# options in comments. For a shorter configuration example, that contains only
+# the most common options, please see filebeat.yml in the same directory.
+#
+# You can find the full configuration reference here:
+# https://www.elastic.co/guide/en/beats/filebeat/index.html
+# https://www.elastic.co/guide/en/beats/filebeat/6.4/filebeat-reference-yml.html
+
+#=========================== Filebeat inputs =============================
+
+# List of inputs to fetch data.
+filebeat.inputs:
+- type: log
+
+  # Change to true to enable this input configuration.
+  enabled: true
+
+  paths:  
+    - /usr/share/filebeat/logs/docker-logs/*/*.log
+      # - /usr/share/filebeat/logs/plentymarket-middleware-logs/filtered.log
+
+  json.add_error_key: true
+  json.message_key: log
+  fields:
+    type: "log4j-rabbitmq-type"
+
+#================================ General ======================================
+
+# The name of the shipper that publishes the network data. It can be used to group
+# all the transactions sent by a single shipper in the web interface.
+# If this options is not defined, the hostname is used.
+name: anjaria-vm
+
+#================================ Outputs ======================================
+
+# Configure what output to use when sending the data collected by the beat.
+
+#-------------------------- Elasticsearch output -------------------------------
+output.elasticsearch:
+  # Boolean flag to enable or disable the output module.
+  enabled: true
+
+  # Array of hosts to connect to.
+  # Scheme and port can be left out and will be set to the default (http and 9200)
+  # In case you specify and additional path, the scheme is required: http://localhost:9200/path
+  # IPv6 addresses should always be defined as: https://[2001:db8::1]:9200
+  hosts: ["elasticsearch-1:9200"]
+
+  # index: "logstash-%{+YYYY.MM.dd.HH}"
+
+#----------------------------- Console output ---------------------------------
+
+output.console:
+  enabled: false
+
+  # Configure JSON encoding
+  codec.json:
+    # Pretty-print JSON event
+    pretty: true
+
+    # Configure escaping HTML symbols in strings.
+    #escape_html: false
+
+#----------------------------- Logstash output ---------------------------------
+output.logstash:
+  # Boolean flag to enable or disable the output module.
+  enabled: false
+
+  # The Logstash hosts
+  hosts: ["logstash:5044"]
+
+#==========================  Modules configuration =============================
+filebeat.modules:
+#-------------------------------- Nginx Module --------------------------------
+- module: nginx
+  # Access logs
+  access:
+    enabled: false
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    var.paths:
+      - /usr/share/dockerlogs/data/filtered.log
+
+    # Input configuration (advanced). Any input configuration option
+    # can be added under this section.
+    #input:
+
+  # Error logs
+  error:
+    enabled: false
+
+    # Set custom paths for the log files. If left empty,
+    # Filebeat will choose the paths depending on your OS.
+    var.paths:
+      - /usr/share/dockerlogs/data/filtered.log
+    # Input configuration (advanced). Any input configuration option
+    # can be added under this section.
+    #input:
+
+#================================ Processors ===================================
+
+processors:
+- decode_json_fields:
+    fields: ["json.log"]
+    process_array: false
+    max_depth: 1
+    target: ""
+    overwrite_keys: false
+- drop_fields:
+    fields: ["json.log"]
+- add_host_metadata:
+    netinfo.enabled: true
+- rename:
+    fields:
+    - from: "fields.type"
+      to: "type"
