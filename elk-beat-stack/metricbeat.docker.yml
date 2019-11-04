@@ -1,0 +1,12 @@
+metricbeat.modules:
+- module: rabbitmq
+  metricsets: 
+    - node
+  period: 20s
+  enabled: true  
+  hosts: ["192.168.178.224:15672"]
+  username: guest
+  password: guest
+
+output.elasticsearch:
+  hosts: ["elasticsearch-1:9200"]
