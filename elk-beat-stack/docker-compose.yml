@@ -1,4 +1,4 @@
-version: '2.1'
+version: '2.2'
 services:
   elasticsearch-1:
     image: 'docker.elastic.co/elasticsearch/elasticsearch:6.8.1'
@@ -17,35 +17,75 @@ services:
       - '5601:5601'
 #  metricbeat:
 #    image: 'docker.elastic.co/beats/metricbeat:6.8.1'
-#    container_name: metricbeat
-#    # depends_on:
-#      # - elasticsearch-1
-#      # - logstash
+#    # user: root
+#    container_name: metricbeat-$DOMAIN
+##    logging:
+##      driver: json-file
+#    depends_on:
+#      - kibana
 #    environment:
 #      - ELASTICSEARCH_USERNAME=elastic
 #      - ELASTICSEARCH_PASSWORD=changeme
 #    volumes:
 #      - ./metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro
+#      # - ./bearer.token.txt:/etc/k8/bearer.token:ro
+#      # - ./token.master.k8.txt:/etc/k8/bearer.token:ro
+#      # - /home/aanjaria/.kube/config:/etc/k8/config
+#      # - /var/run/docker.sock:/var/run/docker.sock:ro
 #    command: metricbeat -e -strict.perms=false
-  logstash:
-    image: docker.elastic.co/logstash/logstash:6.8.1
-    container_name: logstash
-    command: logstash --path.settings "/etc/logstash/config"
-    # networks:
-    #   - docker-elk
-    # depends_on:
-    #   - elasticsearch
-    volumes:
-      - ./config:/etc/logstash/config
-      - ./pipeline:/etc/logstash/conf.d
-      - ./nginx-pattern:/opt/logstash/patterns/nginx
-      - /home/aanjaria/Downloads/nginx-logs-test:/var/log/nginx
-#  filebeat:
-#    image: docker.elastic.co/beats/filebeat:6.8.1
-##    depends_on:
-##      - kibana
-#    container_name: filebeat
-#    # user: root
+#  heartbeat:
+#    image: 'docker.elastic.co/beats/heartbeat:6.4.2'
+##    user: root
+#    container_name: heartbeat
+#    depends_on:
+#      - kibana
+##    environment:
+##      - ELASTICSEARCH_USERNAME=elastic
+##      - ELASTICSEARCH_PASSWORD=changeme
+##      - KUBERNETES_SERVICE_HOST=api.kubernetes.patagona.de
+##      - KUBERNETES_SERVICE_PORT=443
 #    volumes:
-#      - ./filebeat.docker.yml:/usr/share/filebeat/filebeat.yml
+#      - ./heartbeat.docker.yml:/usr/share/heartbeat/heartbeat.yml:ro
+##      # - ./bearer.token.txt:/etc/k8/bearer.token:ro
+##      # - ./token.master.k8.txt:/etc/k8/bearer.token:ro
+##      # - /home/aanjaria/.kube/config:/etc/k8/config
+##      - /var/run/docker.sock:/var/run/docker.sock:ro
+#    command: -e -strict.perms=false
+#  logstash:
+#    image: docker.elastic.co/logstash/logstash:6.8.1
+#    container_name: logstash
+#    command: logstash --path.settings "/etc/logstash/config"
+#    # networks:
+#    #   - docker-elk
+#    # depends_on:
+#    #   - elasticsearch
+#    volumes:
+#      - ./config:/etc/logstash/config
+#      - ./pipeline:/etc/logstash/conf.d
+#      - ./nginx-pattern:/opt/logstash/patterns/nginx
 #      - /home/aanjaria/Downloads/nginx-logs-test:/var/log/nginx
+#  postgres:
+#    image: postgres
+#    container_name: postgres
+##    environment:
+##      - POSTGRES_PASSWORD=password
+##    volumes:
+##      - table-size-volume:/output
+#    command: [
+#      psql -h 192.168.178.195 -U postgres -d offerstore -c "select table_name as name, pg_relation_size(quote_ident(table_name)) as size_bytes from information_schema.tables where table_schema = 'public';"
+#    ]
+  filebeat:
+    image: docker.elastic.co/beats/filebeat:6.4.2
+    depends_on:
+      - elasticsearch-1
+    container_name: filebeat
+    # user: root
+#    logging:
+#     driver: json-file
+    volumes:
+      - ./filebeat.docker.yml:/usr/share/filebeat/filebeat.yml
+      - ./atrica-results:/opt/atrica-results
+    command: -e -strict.perms=false
+
+volumes:
+  table-size-volume:
