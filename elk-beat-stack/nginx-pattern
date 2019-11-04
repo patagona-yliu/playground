@@ -1,3 +1,0 @@
-NGUSERNAME [a-zA-Z\.\@\-\+_%]+
-NGUSER %{NGUSERNAME}
-NGINXACCESS %{IPORHOST: nginx.access.remote_ip} - %{DATA:nginx.access.user_name} \[%{HTTPDATE:nginx.access.time}\] "%{WORD:nginx.access.method} %{URIPATHPARAM:nginx.access.url} HTTP/%{NUMBER:nginx.access.http_version}" %{NUMBER:nginx.access.response_code:long} (?:%{NUMBER:nginx.access.body_sent.bytes:long}|-) (?:"(?:%{URI:nginx.access.referrer}|-)"|%{QS:nginx.access.referrer}) %{QS:nginx.access.agent} %{NUMBER:nginx.access.request_time} (?:%{NUMBER:nginx.access.upstream_time:float}|-)

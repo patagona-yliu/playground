@@ -15,31 +15,30 @@ services:
       - elasticsearch-1
     ports:
       - '5601:5601'
-#  metricbeat:
-#    image: 'docker.elastic.co/beats/metricbeat:6.8.1'
-#    container_name: metricbeat
-#    # depends_on:
-#      # - elasticsearch-1
-#      # - logstash
-#    environment:
-#      - ELASTICSEARCH_USERNAME=elastic
-#      - ELASTICSEARCH_PASSWORD=changeme
-#    volumes:
-#      - ./metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro
-#    command: metricbeat -e -strict.perms=false
-  logstash:
-    image: docker.elastic.co/logstash/logstash:6.8.1
-    container_name: logstash
-    command: logstash --path.settings "/etc/logstash/config"
-    # networks:
-    #   - docker-elk
-    # depends_on:
-    #   - elasticsearch
+  metricbeat:
+    image: 'docker.elastic.co/beats/metricbeat:6.8.1'
+    container_name: metricbeat
+    depends_on:
+      - kibana
+    environment:
+      - ELASTICSEARCH_USERNAME=elastic
+      - ELASTICSEARCH_PASSWORD=changeme
     volumes:
-      - ./config:/etc/logstash/config
-      - ./pipeline:/etc/logstash/conf.d
-      - ./nginx-pattern:/opt/logstash/patterns/nginx
-      - /home/aanjaria/Downloads/nginx-logs-test:/var/log/nginx
+      - ./metricbeat.docker.yml:/usr/share/metricbeat/metricbeat.yml:ro
+    command: metricbeat -e -strict.perms=false
+#  logstash:
+#    image: docker.elastic.co/logstash/logstash:6.8.1
+#    container_name: logstash
+#    command: logstash --path.settings "/etc/logstash/config"
+#    # networks:
+#    #   - docker-elk
+#    # depends_on:
+#    #   - elasticsearch
+#    volumes:
+#      - ./config:/etc/logstash/config
+#      - ./pipeline:/etc/logstash/conf.d
+#      - ./nginx-pattern:/opt/logstash/patterns/nginx
+#      - /home/aanjaria/Downloads/nginx-logs-test:/var/log/nginx
 #  filebeat:
 #    image: docker.elastic.co/beats/filebeat:6.8.1
 ##    depends_on:
